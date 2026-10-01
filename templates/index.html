@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Animated Flask App</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom smooth pulse animation for the counter */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); color: #6366f1; }
+            100% { transform: scale(1); }
+        }
+        .animate-pop {
+            animation: pop 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center">
+
+    <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full border border-slate-700">
+        <!-- Animated Status Indicator -->
+        <div class="flex items-center justify-center space-x-2 mb-6">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Flask App Online</span>
+        </div>
+
+        <h1 class="text-2xl font-bold mb-2">Live Counter</h1>
+        <p class="text-slate-400 text-sm mb-6">Click the button to update the state on the server asynchronously.</p>
+
+        <!-- Counter Display -->
+        <div id="counter-box" class="text-6xl font-black text-indigo-400 mb-8 transition-all">
+            {{ counter }}
+        </div>
+
+        <!-- Interactive Button -->
+        <button onclick="incrementCounter()" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all font-medium py-3 px-6 rounded-xl shadow-lg shadow-indigo-500/30">
+            Click to Increment
+        </button>
+    </div>
+
+    <!-- JavaScript to handle AJAX communication -->
+    <script>
+        async function incrementCounter() {
+            try {
+                const response = await fetch('/increment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const counterBox = document.getElementById('counter-box');
+                    counterBox.innerText = data.counter;
+                    
+                    // Trigger custom scale animation
+                    counterBox.classList.add('animate-pop');
+                    setTimeout(() => {
+                        counterBox.classList.remove('animate-pop');
+                    }, 300);
+                }
+            } catch (error) {
+                console.error('Error updating counter:', error);
+            }
+        }
+    </script>
+</body>
+</html>
